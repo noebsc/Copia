@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+// Import fetch compatible CommonJS (Render)
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
@@ -12,25 +13,16 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('photos', 3);
 
-// Gemini API infos
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-const GEMINI_API_KEY = process.env.COPIA_API_KEY || 'AIzaSyDOeHF6la3IFedlVC4-NM0Yjgj737AIAWo';
-
-// Helper : convertir un fichier buffer en bloc data image (base64)
-function bufferToBase64DataUrl(mimetype, buffer) {
-  return `data:${mimetype};base64,${buffer.toString('base64')}`;
-}
+const GEMINI_API_KEY = process.env.COPIA_API_KEY;
 
 app.post('/api/ask', upload, async (req, res) => {
   try {
     const questions = req.body.questions || '';
     const files = req.files || [];
 
-    if (files.length === 0) {
-      return res.status(400).json({ error: "Aucune photo reçue" });
-    }
+    if (files.length === 0) return res.status(400).json({ error: "Aucune photo reçue" });
 
-    // Préparer les images pour Gemini
     const imagePrompts = files.map(file => ({
       inlineData: {
         mimeType: file.mimetype,
@@ -38,20 +30,12 @@ app.post('/api/ask', upload, async (req, res) => {
       }
     }));
 
-    // Construction du prompt multimodal
     const multiModalMessages = [
-      { role: "user", parts: [
-        { text: questions },
-        ...imagePrompts
-      ]}
+      { role: "user", parts: [{ text: questions }, ...imagePrompts] }
     ];
 
-    const body = {
-      contents: multiModalMessages
-    };
-
-    const apiUrl = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
-    const response = await fetch(apiUrl, {
+    const body = { contents: multiModalMessages };
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -76,9 +60,8 @@ app.post('/api/ask', upload, async (req, res) => {
   }
 });
 
-// (Optionnel) Route d’accueil pour tester rapidement sur /
-app.get("/", (req, res) => {
-    res.send("Bienvenue sur l’API Copia.. Utilisez POST /api/ask avec images et texte !");
+app.get('/', (req, res) => {
+  res.send("Bienvenue sur l’API Copia. Utilisez POST /api/ask.");
 });
 
 app.listen(port, () => {
