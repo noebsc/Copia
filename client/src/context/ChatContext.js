@@ -7,8 +7,6 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
-  updateDoc,
-  doc,
 } from "firebase/firestore";
 import { AuthContext } from "./AuthContext";
 
@@ -35,7 +33,7 @@ export default function ChatProvider({ children }) {
       if (convs.length && !activeConvId) setActiveConvId(convs[0].id);
     });
     return unsub;
-  }, [user]);
+  }, [user, activeConvId]);
 
   useEffect(() => {
     if (!activeConvId) return setMessages([]);
