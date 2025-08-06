@@ -13,7 +13,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('photos', 3);
 
 // Gemini API infos
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const GEMINI_API_KEY = process.env.COPIA_API_KEY || 'AIzaSyDOeHF6la3IFedlVC4-NM0Yjgj737AIAWo';
 
 // Helper : convertir un fichier buffer en bloc data image (base64)
