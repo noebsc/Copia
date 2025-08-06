@@ -30,7 +30,7 @@ function App() {
     formData.append('questions', questions);
 
     try {
-      const res = await fetch('http://localhost:4000/api/ask', {
+      const res = await fetch('https://copia-2vq4.onrender.com/api/ask', {
         method: 'POST',
         body: formData,
       });
